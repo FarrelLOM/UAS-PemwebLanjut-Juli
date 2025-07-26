@@ -4,8 +4,7 @@
 # Farrel Laogi Murjitama
 # 202231096
 
-Backlink ke kampus
-# Kampus saya di **\[[https://itpln.ac.id/](linkto:https://itpln.ac.id/)]**.
+# Kampus saya di **(https://itpln.ac.id)**.
 
 # EcoConnect - Platform Donasi Proyek SDGs
 
