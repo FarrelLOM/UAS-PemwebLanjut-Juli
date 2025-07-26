@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Withdraw Dana</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+  <link rel="icon" href="/uploads/icon1contoh.png" type="image/png" />
+  <style>
+    body {
+      background: #f5f7fa;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    .withdraw-container {
+      background: #fff;
+      max-width: 400px;
+      width: 100%;
+      margin: 32px auto 0 auto;
+      padding: 32px 28px 24px 28px;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px rgba(44, 62, 80, 0.07);
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .withdraw-container h2 {
+      text-align: center;
+      margin-bottom: 24px;
+      color: #2e8b57;
+      font-weight: 600;
+    }
+    .withdraw-container label,
+    .withdraw-container select,
+    .withdraw-container button,
+    .withdraw-container p {
+      margin-bottom: 16px;
+      font-size: 1em;
+    }
+    .withdraw-container select {
+      padding: 10px 12px;
+      border: 1px solid #cfd8dc;
+      border-radius: 6px;
+      font-size: 1em;
+      margin-bottom: 18px;
+    }
+    .withdraw-container button {
+      background: #2e8b57;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 0;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .withdraw-container button:hover {
+      background: #256d47;
+    }
+    .withdraw-container p#msg {
+      min-height: 24px;
+      text-align: center;
+      color: #2e8b57;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <div class="navbar-logo">
+        <img src="/uploads/icon1contoh.png" alt="Logo" />
+        <span>EcoConnect</span>
+      </div>
+      <ul class="navbar-links" id="navbarLinks">
+        <li><a href="/explore">Daftar Proyek</a></li>
+        <li><a href="/dashboard">Dashboard</a></li>
+        <li><a href="/form-pengajuan">Pengajuan Proyek</a></li>
+        <li><a href="/map">Peta Proyek</a></li>
+        <li><a href="/leaderboard">Peringkat</a></li>
+        <li><a href="/forum">Forum</a></li>
+        <li><a href="/chat">Chat Admin</a></li>
+        <li><a href="/withdraw">Pencairan</a></li>
+        <li><a href="/profile">Profil</a></li>
+        <li><a href="/auth/logout">Logout</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <div class="withdraw-container">
+      <h2>Ajukan Withdraw</h2>
+      <label for="project_id">Pilih Proyek:</label>
+      <select id="project_id"></select>
+      <button onclick="ajukanWithdraw()">Ajukan Penarikan Dana</button>
+      <p id="msg"></p>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>&copy; 2025 EcoConnect. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // Tampilkan proyek yang layak withdraw
+    fetch("/user/proyekku")
+      .then(res => res.json())
+      .then(data => {
+        const select = document.getElementById("project_id");
+        data.forEach(p => {
+          if (p.total_donasi >= p.target_amount) {
+            const option = document.createElement("option");
+            option.value = p.id;
+            option.textContent = `${p.title} - Terkumpul Rp${p.total_donasi}`;
+            select.appendChild(option);
+          }
+        });
+      });
+
+    function ajukanWithdraw() {
+      const id = document.getElementById("project_id").value;
+      fetch("/withdraw/ajukan", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ project_id: id })
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("msg").textContent = data.message || data.error;
+      });
+    }
+    </script>
+</body>
+</html>

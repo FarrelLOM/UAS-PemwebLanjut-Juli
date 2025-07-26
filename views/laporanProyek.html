@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Upload Laporan Proyek</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+  <h2>Upload Laporan Proyek</h2>
+<form id="laporanForm" enctype="multipart/form-data" method="POST">
+    <label for="project">Pilih Proyek:</label>
+    <select name="project_id" id="project_id" required></select><br><br>
+
+    <label for="description">Deskripsi:</label><br>
+    <textarea name="description" id="description" required></textarea><br><br>
+
+    <label for="image">Gambar:</label><br>
+    <input type="file" name="image" id="image" accept="image/*" required /><br><br>
+
+    <button type="submit">Upload</button>
+  </form>
+
+  <p id="msg"></p>
+
+  <script>
+    // Load proyek milik user
+    fetch('/user/my-projects')
+      .then(res => res.json())
+      .then(data => {
+        const select = document.getElementById('project_id');
+        data.forEach(p => {
+          const opt = document.createElement('option');
+          opt.value = p.id;
+          opt.innerText = p.judul;
+          select.appendChild(opt);
+        });
+      });
+
+    document.getElementById("laporanForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const formData = new FormData();
+      formData.append("project_id", this.project_id.value);
+      formData.append("description", this.description.value);
+      formData.append("image", this.image.files[0]);
+
+      const res = await fetch("/user/upload-report", {
+        method: "POST",
+        body: formData
+      });
+
+      const result = await res.json();
+      document.getElementById("msg").innerText = result.message;
+    });
+  </script>
+</body>
+</html>

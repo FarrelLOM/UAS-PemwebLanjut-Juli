@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Verifikasi Laporan Proyek</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+  <h2>Verifikasi Laporan Proyek</h2>
+  <div id="laporan-container"></div>
+
+  <script>
+    async function loadLaporan() {
+      const res = await fetch("/admin/reports");
+      const data = await res.json();
+
+      const container = document.getElementById("laporan-container");
+      container.innerHTML = "";
+
+      data.forEach(item => {
+        const div = document.createElement("div");
+        div.style.border = "1px solid #ccc";
+        div.style.margin = "10px";
+        div.style.padding = "10px";
+
+        div.innerHTML = `
+          <p><strong>Proyek ID:</strong> ${item.project_id}</p>
+          <p><strong>Deskripsi:</strong> ${item.description}</p>
+          <p><strong>Status:</strong> ${item.status}</p>
+          <img src="${item.image_url}" width="300" /><br><br>
+          <button onclick="verifikasi(${item.id}, 'approved')">✅ Setujui</button>
+          <button onclick="verifikasi(${item.id}, 'rejected')">❌ Tolak</button>
+        `;
+
+        container.appendChild(div);
+      });
+    }
+
+    async function verifikasi(id, status) {
+      const res = await fetch(`/admin/reports/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status })
+      });
+      const result = await res.json();
+      alert(result.message);
+      loadLaporan();
+    }
+
+    loadLaporan();
+  </script>
+</body>
+</html>

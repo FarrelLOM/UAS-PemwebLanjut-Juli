@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Admin Dashboard</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/css/styles.css" />
+  <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 32px;
+      background: #f9f9f9;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    th, td {
+      border: 1px solid #cfd8dc;
+      padding: 10px 8px;
+      text-align: left;
+      font-size: 1rem;
+    }
+    th {
+      background: #e0f7e9;
+      color: #2e7d32;
+      font-weight: 700;
+    }
+    tr:nth-child(even) td {
+      background: #f5f5f5;
+    }
+    button, input[type="submit"] {
+      background: linear-gradient(90deg, #43ea7c 0%, #2e7d32 100%);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 18px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin: 2px 0;
+      transition: background 0.2s, box-shadow 0.2s;
+      box-shadow: 0 2px 8px rgba(67,234,124,0.08);
+    }
+    button:hover, input[type="submit"]:hover {
+      background: linear-gradient(90deg, #2e7d32 0%, #43ea7c 100%);
+      box-shadow: 0 4px 16px rgba(67,234,124,0.15);
+    }
+    @media (max-width: 900px) {
+      main {
+        max-width: 98vw;
+        padding: 12px 4px;
+      }
+      table, th, td {
+        font-size: 0.95rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <div class="navbar-logo">
+        <img src="/uploads/icon1contoh.png" alt="Logo" />
+        <span>EcoConnect Admin</span>
+      </div>
+      <ul class="navbar-links" id="navbarLinks">
+        <li><a href="/admin">Dashboard</a></li>
+        <li><a href="/chat">Chat User</a></li>
+        <li><a href="/forum">Forumku</a></li>
+        <li><a href="/explore">Proyek</a></li>
+        <li><a href="/map">Peta</a></li>
+        <li><a href="/profile">Profil</a></li>
+        <li><a href="/auth/logout">Logout</a></li>
+      </ul>
+      </ul>
+    </nav>
+  </header>
+  <main>
+    <h2 style="text-align: center;">Dashboard Admin</h2>
+    <h3 style="text-align: center;">Daftar Pengajuan Proyek</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Judul</th>
+          <th>Deskripsi</th>
+          <th>Kategori</th>
+          <th>Lokasi</th>
+          <th>Deadline</th>
+          <th>Status</th>
+          <th>Opsi</th>
+        </tr>
+      </thead>
+      <tbody id="projectTableBody">
+        <!-- diisi oleh JS -->
+      </tbody>
+    </table>
+    <section>
+      <h2 style="text-align: center;">Pengajuan Withdraw</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Proyek</th>
+            <th>Pengaju</th>
+            <th>Jumlah</th>
+            <th>Status</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="withdrawBody">
+          <tr><td colspan="5">Memuat...</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+  <footer class="footer">
+    <p>&copy; 2025 EcoConnect. All rights reserved.</p>
+  </footer>
+  <script>
+    fetch("/admin/withdraw")
+      .then(res => res.json())
+      .then(data => {
+        const tbody = document.getElementById("withdrawBody");
+        tbody.innerHTML = "";
+
+        data.forEach(w => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${w.project_title}</td>
+            <td>${w.user_name}</td>
+            <td>Rp${parseInt(w.amount).toLocaleString()}</td>
+            <td>${w.status}</td>
+            <td>
+              ${w.status === "pending" ? `
+                <button onclick="setujui(${w.id})">Setujui</button>
+                <button onclick="tolak(${w.id})">Tolak</button>
+              ` : "-"}
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      });
+
+    function setujui(id) {
+      fetch("/admin/withdraw/update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, status: "approved" })
+      }).then(() => location.reload());
+    }
+
+    function tolak(id) {
+      fetch("/admin/withdraw/update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, status: "rejected" })
+      }).then(() => location.reload());
+    }
+  </script>
+  <script>
+    fetch("/admin/api/projects")
+      .then(res => res.json())
+      .then(data => {
+        const body = document.getElementById("projectTableBody");
+        body.innerHTML = "";
+        data.forEach(p => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${p.judul}</td>
+            <td>${p.deskripsi}</td>
+            <td>${p.kategori}</td>
+            <td>${p.lokasi}</td>
+            <td>${p.deadline}</td>
+            <td>${p.status}</td>
+            <td>
+              ${p.status === 'pending' ? `
+              <form action="/admin/projects/approve/${p.id}" method="POST" style="display:inline">
+                <button type="submit">Setujui</button>
+              </form>
+              <form action="/admin/projects/reject/${p.id}" method="POST" style="display:inline">
+                <button type="submit">Tolak</button>
+              </form>` : '-'}
+            </td>
+          `;
+          body.appendChild(row);
+        });
+      });
+  </script>
+</body>
+</html>

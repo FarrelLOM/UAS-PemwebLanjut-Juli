@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Chat - EcoConnect</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+  <style>
+    #chat-container { display: flex; max-width: 1000px; margin: auto; }
+    #user-list { width: 300px; border-right: 1px solid #ccc; padding: 10px; }
+    #user-list input { width: 100%; padding: 5px; margin-bottom: 10px; }
+    .user-entry { cursor: pointer; padding: 10px; border-bottom: 1px solid #eee; }
+    .user-entry.unread { color: red; font-weight: bold; }
+    .user-entry.read { color: black; }
+    #chat-box { flex-grow: 1; padding: 20px; }
+    .bubble { padding: 10px; margin: 5px; border-radius: 10px; max-width: 80%; }
+    .left { background-color: #d4f7d4; text-align: left; }
+    .right { background-color: #eee; text-align: right; margin-left: auto; }
+  </style>
+</head>
+<body>
+  <div id="chat-container">
+    <div id="user-list">
+      <input type="text" id="searchUser" placeholder="Cari nama / no. WA...">
+      <div id="userResults"></div>
+    </div>
+    <div id="chat-box">
+      <div id="chat-messages" style="height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;"></div>
+      <form id="reply-form" enctype="multipart/form-data">
+        <input type="text" name="content" id="replyInput" placeholder="Balas pesan..." required />
+        <input type="file" name="image" id="replyImage" />
+        <button type="submit">Kirim</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let currentUserId = null;
+    let allUsers = [];
+
+    function loadUsers() {
+      fetch('/chat/admin/users')
+        .then(res => res.json())
+        .then(users => {
+          allUsers = users;
+          renderUserList(users);
+        });
+    }
+
+    function renderUserList(users) {
+      const container = document.getElementById('userResults');
+      container.innerHTML = '';
+      users.forEach(u => {
+        const div = document.createElement('div');
+        div.className = 'user-entry ' + (u.has_unread ? 'unread' : 'read');
+        div.textContent = `${u.name} (${u.no_wa || 'No WA?'})`;
+        div.onclick = () => {
+          currentUserId = u.id;
+          markAsRead(u.id);
+          loadChat(u.id);
+        };
+        container.appendChild(div);
+      });
+    }
+
+    function loadChat(userId) {
+      fetch(`/chat/admin/${userId}`)
+        .then(res => res.json())
+        .then(data => {
+          const box = document.getElementById('chat-messages');
+          box.innerHTML = '';
+          data.forEach(chat => {
+            console.log(chat); // Tambahkan ini
+            const div = document.createElement('div');
+            const adminId = 1; // ID admin tetap (default)
+            const isUserMsg = chat.sender_id === parseInt(currentUserId);
+            const isAdminMsg = chat.sender_id === adminId;
+
+            div.className = 'bubble ' + (isUserMsg ? 'left' : isAdminMsg ? 'right' : '');
+            div.innerHTML = `
+                ${chat.content || ''}
+                ${chat.image_url ? '<br><img src="' + chat.image_url + '" width="100"/>' : ''}
+              `;
+            box.appendChild(div);
+          });
+          box.scrollTop = box.scrollHeight;
+        });
+    }
+
+    function markAsRead(userId) {
+      fetch(`/chat/admin/${userId}/read`, { method: 'POST' });
+    }
+
+    document.getElementById('reply-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (!currentUserId) return alert("Pilih user dulu!");
+      const formData = new FormData(this);
+      fetch(`/chat/admin/${currentUserId}/send`, {
+        method: 'POST',
+        body: formData
+      }).then(() => {
+        this.reset();
+        loadChat(currentUserId);
+      });
+    });
+
+    document.getElementById('searchUser').addEventListener('input', function () {
+      const keyword = this.value.toLowerCase();
+      const filtered = allUsers.filter(u =>
+        u.name.toLowerCase().includes(keyword) || (u.no_wa || '').includes(keyword)
+      );
+      renderUserList(filtered);
+    });
+
+    loadUsers();
+    setInterval(() => {
+      loadUsers();
+      if (currentUserId) loadChat(currentUserId);
+    }, 5000);
+  </script>
+</body>
+</html>
