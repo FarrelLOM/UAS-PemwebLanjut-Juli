@@ -4,7 +4,7 @@
 # Farrel Laogi Murjitama
 # 202231096
 
-# Kampus saya di **(https://itpln.ac.id)**.
+# Kampus saya di **https://itpln.ac.id**.
 
 # EcoConnect - Platform Donasi Proyek SDGs
 
@@ -79,6 +79,7 @@ Sebelum menjalankan aplikasi ini, pastikan bahwa Anda sudah menginstal **Node.js
      DB_USER=root
      DB_PASS=
      DB_NAME=ecoconnect2
+     DB_PORT=
 
      # Google OAuth
      GOOGLE_CLIENT_ID=xxx
