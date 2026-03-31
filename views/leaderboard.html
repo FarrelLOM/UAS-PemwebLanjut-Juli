@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Leaderboard - EcoConnect</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+  <link rel="icon" href="/uploads/icon1contoh.png" type="image/png" />
+  <style>
+    body {
+      background-color: #f9f9f9;
+      font-family: sans-serif;
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .leaderboard {
+      max-width: 800px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #ccc;
+    }
+    .user-entry {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+    }
+    .user-entry img {
+      width: 24px;
+      height: 24px;
+      margin-left: 10px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <div class="navbar-logo">
+        <img src="/uploads/icon1contoh.png" alt="Logo" />
+        <span>EcoConnect</span>
+      </div>
+      <ul class="navbar-links" id="navbarLinks">
+        <li><a href="/explore">Daftar Proyek</a></li>
+        <li><a href="/dashboard">Dashboard</a></li>
+        <li><a href="/form-pengajuan">Pengajuan Proyek</a></li>
+        <li><a href="/map">Peta Proyek</a></li>
+        <li><a href="/leaderboard">Peringkat</a></li>
+        <li><a href="/forum">Forum</a></li>
+        <li><a href="/chat">Chat Admin</a></li>
+        <li><a href="/withdraw">Pencairan</a></li>
+        <li><a href="/profile">Profil</a></li>
+        <li><a href="/auth/logout">Logout</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <div class="leaderboard">
+      <h2 style="text-align:center;">🏆 Leaderboard Kontributor SDGs</h2>
+      <div id="leaderboardContainer">Memuat...</div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>&copy; 2025 EcoConnect. All rights reserved.</p>
+  </footer>
+
+  <script>
+    fetch("/user/leaderboard")
+      .then(res => res.json())
+      .then(data => {
+        const container = document.getElementById("leaderboardContainer");
+        if (!data.length) {
+          container.innerHTML = "<p>Belum ada data leaderboard.</p>";
+          return;
+        }
+
+        container.innerHTML = "";
+        data.forEach((user, i) => {
+          const div = document.createElement("div");
+          div.className = "user-entry";
+          div.innerHTML = `
+            <div>
+              <strong>#${i + 1} ${user.name}</strong><br/>
+              <small>Donasi: Rp${user.total_donasi.toLocaleString()} | Proyek: ${user.jumlah_proyek}</small>
+            </div>
+            <div>
+              ${user.badges.map(b => `<img src="${b.icon_url}" title="${b.name}" alt="${b.name}" />`).join('')}
+            </div>
+          `;
+          container.appendChild(div);
+        });
+      });
+  </script>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Peta Proyek - EcoConnect</title>
+  <meta charset="utf-8" />
+  <script src="https://atlas.microsoft.com/sdk/javascript/mapcontrol/2/atlas.min.js"></script>
+  <link rel="stylesheet" href="https://atlas.microsoft.com/sdk/javascript/mapcontrol/2/atlas.min.css" />
+  <link rel="stylesheet" href="/css/styles.css" />
+  <link rel="icon" href="/uploads/icon1contoh.png" type="image/png" />
+  <style>
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+}
+#myMap {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  height: 100%;
+}
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <div class="navbar-logo">
+        <img src="/uploads/icon1contoh.png" alt="Logo" />
+        <span>EcoConnect</span>
+      </div>
+      <ul class="navbar-links" id="navbarLinks">
+        <li><a href="/explore">Daftar Proyek</a></li>
+        <li><a href="/dashboard">Dashboard</a></li>
+        <li><a href="/form-pengajuan">Pengajuan Proyek</a></li>
+        <li><a href="/map">Peta Proyek</a></li>
+        <li><a href="/leaderboard">Peringkat</a></li>
+        <li><a href="/forum">Forum</a></li>
+        <li><a href="/chat">Chat Admin</a></li>
+        <li><a href="/withdraw">Pencairan</a></li>
+        <li><a href="/profile">Profil</a></li>
+        <li><a href="/auth/logout">Logout</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <h2 style="text-align: center">Peta Proyek SDGs</h2>
+    <div id="myMap"></div>
+  </main>
+
+  <footer class="footer">
+    <p>&copy; 2025 EcoConnect. All rights reserved.</p>
+  </footer>
+
+<script>
+  fetch("/map-key")
+    .then(res => res.json())
+    .then(data => {
+      const map = new atlas.Map("myMap", {
+        center: [106.8, -6.2],
+        zoom: 5,
+        authOptions: {
+          authType: "subscriptionKey",
+          subscriptionKey: data.key
+        }
+      });
+
+      map.events.add("ready", function () {
+        fetch("/map/data")
+          .then(res => res.json())
+          .then(projects => {
+            projects.forEach(p => {
+              const markerEl = document.createElement("div");
+              markerEl.innerHTML = "📍";
+              markerEl.style.cursor = "pointer";
+              markerEl.style.fontSize = "24px";
+
+              markerEl.addEventListener("click", () => {
+                window.location.href = `/user/proyek/${p.id}`;
+              });
+
+              const marker = new atlas.HtmlMarker({
+                position: [p.lng, p.lat],
+                htmlContent: markerEl
+              });
+
+              map.markers.add(marker);
+            });
+          });
+      });
+    });
+</script>
+</body>
+</html>

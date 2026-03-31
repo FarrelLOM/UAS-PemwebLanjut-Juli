@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard User</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+  <link rel="icon" href="/uploads/icon1contoh.png" type="image/png" />
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <div class="navbar-logo">
+        <img src="/uploads/icon1contoh.png" alt="Logo" />
+        <span>EcoConnect</span>
+      </div>
+      <ul class="navbar-links" id="navbarLinks">
+        <li><a href="/explore">Daftar Proyek</a></li>
+        <li><a href="/form-pengajuan">Pengajuan Proyek</a></li>
+        <li><a href="/map">Peta Proyek</a></li>
+        <li><a href="/leaderboard">Peringkat</a></li>
+        <li><a href="/forum">Forum</a></li>
+        <li><a href="/chat">Chat Admin</a></li>
+        <li><a href="/withdraw">Pencairan</a></li>
+        <li><a href="/profile">Profil</a></li>
+        <li><a href="/auth/logout">Logout</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="container">
+  <h2 id="haloUser">Halo, User!</h2>
+    <p>Selamat datang di EcoConnect. Di sini kamu bisa mengajukan proyek, berdonasi, dan berkontribusi pada SDGs.</p>
+    <section>
+      <h2>Riwayat Donasi</h2>
+      <table border="1" cellpadding="8">
+        <thead>
+          <tr>
+            <th>Proyek</th>
+            <th>Jumlah</th>
+            <th>Status</th>
+            <th>Tanggal</th>
+          </tr>
+        </thead>
+        <tbody id="donasiTableBody">
+          <tr><td colspan="4">Memuat data...</td></tr>
+        </tbody>
+      </table>
+    </section>
+    <section>
+      <h2>Proyek Saya</h2>
+      <div id="proyekContainer">Memuat data proyek...</div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>&copy; 2025 EcoConnect. All rights reserved.</p>
+  </footer>
+
+  <script>
+    fetch("/user/proyekku")
+      .then(res => res.json())
+      .then(data => {
+        const container = document.getElementById("proyekContainer");
+
+        if (data.length === 0) {
+          container.innerHTML = "<p>Belum ada proyek.</p>";
+          return;
+        }
+
+        container.innerHTML = "";
+        data.forEach(p => {
+          const percent = Math.min(100, Math.floor((p.total_donasi / p.target_amount) * 100));
+
+          const div = document.createElement("div");
+          div.innerHTML = `
+            <h3>${p.title}</h3>
+            <p>Terkumpul: Rp${parseInt(p.total_donasi).toLocaleString()} dari Rp${parseInt(p.target_amount).toLocaleString()}</p>
+            <div style="background:#eee; width:100%; height:20px; border-radius:10px;">
+              <div style="width:${percent}%; height:100%; background:green;"></div>
+            </div>
+            <p>${percent}% dari target</p>
+          `;
+          container.appendChild(div);
+        });
+      })
+      .catch(() => {
+        document.getElementById("proyekContainer").innerHTML = "<p>Gagal memuat data proyek.</p>";
+      });
+  </script>
+  <script>
+  // Ambil nama user dan tampilkan di dashboard
+  fetch("/user/profile-data")
+    .then(res => res.json())
+    .then(data => {
+      if (data.name) {
+        document.getElementById("haloUser").textContent = `Halo, ${data.name}!`;
+      }
+    });
+</script>
+  <script>
+    fetch("/user/donasi")
+      .then(res => res.json())
+      .then(data => {
+        const tbody = document.getElementById("donasiTableBody");
+        if (data.length === 0) {
+          tbody.innerHTML = "<tr><td colspan='4'>Belum ada donasi.</td></tr>";
+          return;
+        }
+
+        tbody.innerHTML = "";
+        data.forEach(d => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${d.project_title}</td>
+            <td>Rp${parseInt(d.amount).toLocaleString()}</td>
+            <td>${d.status}</td>
+            <td>${new Date(d.created_at).toLocaleString()}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      })
+      .catch(() => {
+        document.getElementById("donasiTableBody").innerHTML = "<tr><td colspan='4'>Gagal memuat data.</td></tr>";
+      });
+  </script>
+</body>

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Profil Saya - EcoConnect</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+  <link rel="icon" href="/uploads/icon1contoh.png" type="image/png" />
+  <style>
+    body {
+      background: #f5f7fa;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+ main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 32px 0 32px 0;
+  background: #f5f7fa;
+}
+.profile-container {
+  background: #fff;
+  max-width: 420px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 40px 32px 32px 32px;
+  border-radius: 16px;
+  box-shadow: 0 6px 32px rgba(44, 62, 80, 0.10);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+}
+.profile-container h2 {
+  text-align: center;
+  margin-bottom: 28px;
+  color: #2e8b57;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+.profile-container label {
+  margin-bottom: 4px;
+  font-size: 1em;
+  font-weight: 500;
+  color: #333;
+}
+.profile-container input {
+  padding: 12px 14px;
+  border: 1px solid #cfd8dc;
+  border-radius: 8px;
+  font-size: 1em;
+  margin-bottom: 18px;
+  transition: border 0.2s;
+  background: #f9f9f9;
+}
+.profile-container input:focus {
+  border: 1.5px solid #2e8b57;
+  outline: none;
+  background: #fff;
+}
+.profile-container button {
+  background: #2e8b57;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 0;
+  font-size: 1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 10px;
+  letter-spacing: 0.5px;
+}
+.profile-container button:hover {
+  background: #256d47;
+}
+#statusMsg {
+  min-height: 24px;
+  text-align: center;
+  color: #2e8b57;
+  font-weight: 500;
+  margin-top: 8px;
+}
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <div class="navbar-logo">
+        <img src="/uploads/icon1contoh.png" alt="Logo" />
+        <span>EcoConnect</span>
+      </div>
+      <ul class="navbar-links" id="navbarLinks">
+        <li><a href="/explore">Daftar Proyek</a></li>
+        <li><a href="/dashboard">Dashboard</a></li>
+        <li><a href="/form-pengajuan">Pengajuan Proyek</a></li>
+        <li><a href="/map">Peta Proyek</a></li>
+        <li><a href="/leaderboard">Peringkat</a></li>
+        <li><a href="/forum">Forum</a></li>
+        <li><a href="/chat">Chat Admin</a></li>
+        <li><a href="/withdraw">Pencairan</a></li>
+        <li><a href="/profile">Profil</a></li>
+        <li><a href="/auth/logout">Logout</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+<div class="profile-container">
+  <h2>Profil Saya</h2>
+  <form id="profileForm" style="display: flex; flex-direction: column;">
+    <label for="username">Nama:</label>
+    <input type="text" name="username" id="username" required />
+
+    <label for="password" style="margin-top: 8px;">Password Baru (opsional):</label>
+    <input type="password" name="password" id="password" />
+
+    <label for="no_wa" style="margin-top: 8px;">Nomor WhatsApp:</label>
+    <input type="text" name="no_wa" id="no_wa" />
+
+    <button type="submit" style="
+      margin-top: 24px;
+      width: 80%;
+      align-self: center;
+      font-size: 1.1em;
+      padding: 14px 0;
+      letter-spacing: 1px;
+    ">Simpan</button>
+  </form>
+  <p id="statusMsg"></p>
+</div>
+  </main>
+
+  <footer class="footer">
+    <p>&copy; 2025 EcoConnect. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // Muat data user saat halaman dibuka
+    fetch("/user/profile-data")
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("username").value = data.name;
+        document.getElementById("no_wa").value = data.no_wa || "";
+      });
+
+    // Submit form profil
+    document.getElementById("profileForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const formData = {
+        username: this.name.value,
+        password: this.password.value,
+        no_wa: this.no_wa.value
+      };
+
+      fetch("/user/update-profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData)
+      })
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById("statusMsg").innerText = data.success
+            ? "Profil berhasil diperbarui!"
+            : "Gagal memperbarui profil.";
+        });
+    });
+  </script>
+</body>
+</html>

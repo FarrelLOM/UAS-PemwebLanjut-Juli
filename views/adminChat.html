@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Chat - EcoConnect</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+  <style>
+#chat-container {
+  flex: 1;
+  display: flex;
+  flex-direction: row; /* pastikan row di sini */
+  max-width: 1000px;
+  margin: 32px auto 0 auto;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+  min-height: 500px;
+  overflow: hidden;
+}
+    #user-list {
+      width: 300px;
+      border-right: 1px solid #cfd8dc;
+      padding: 24px 12px;
+      background: #f5f5f5;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #user-list input {
+      width: 100%;
+      padding: 8px 10px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      border: 1px solid #bdbdbd;
+      font-size: 1rem;
+      background: #fff;
+      transition: border 0.2s;
+    }
+    #user-list input:focus {
+      border-color: #2e7d32;
+      outline: none;
+    }
+    .user-entry {
+      cursor: pointer;
+      padding: 10px;
+      border-bottom: 1px solid #eee;
+      border-radius: 6px;
+      transition: background 0.2s;
+      font-size: 1rem;
+    }
+    .user-entry.unread {
+      color: #d32f2f;
+      font-weight: bold;
+      background: #fff3e0;
+    }
+    .user-entry.read {
+      color: #2e7d32;
+      background: #e0f7e9;
+    }
+    .user-entry:hover {
+      background: #c8e6c9;
+    }
+    #chat-box {
+      flex-grow: 1;
+      padding: 32px 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: stretch;
+      min-width: 0;
+    }
+    #chat-messages {
+      height: 350px;
+      overflow-y: auto;
+      border: 1px solid #cfd8dc;
+      padding: 16px;
+      background: #f5f5f5;
+      border-radius: 10px;
+      margin-bottom: 16px;
+      box-sizing: border-box;
+    }
+    .bubble {
+      padding: 10px 16px;
+      margin: 8px 0;
+      border-radius: 16px;
+      max-width: 70%;
+      font-size: 1rem;
+      word-break: break-word;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      transition: background 0.2s;
+    }
+    .left {
+      background-color: #eee;
+      text-align: left;
+      align-self: flex-start;
+    }
+    .right {
+      background-color: #a6e6a6;
+      text-align: right;
+      align-self: flex-end;
+    }
+    #reply-form {
+      display: flex;
+      gap: 12px;
+      width: 100%;
+      align-items: center;
+      margin-top: 8px;
+    }
+    #replyInput {
+      flex: 1;
+      padding: 10px 14px;
+      border: 1px solid #bdbdbd;
+      border-radius: 8px;
+      font-size: 1rem;
+      background: #f9f9f9;
+      transition: border 0.2s;
+    }
+    #replyInput:focus {
+      border-color: #2e7d32;
+      outline: none;
+      background: #fff;
+    }
+    #replyImage {
+      padding: 6px;
+      border-radius: 8px;
+      background: #f9f9f9;
+      border: 1px solid #bdbdbd;
+      font-size: 0.95rem;
+      width: 140px;
+    }
+    button[type="submit"] {
+      background: linear-gradient(90deg, #43ea7c 0%, #2e7d32 100%);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 22px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(67,234,124,0.08);
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+    button[type="submit"]:hover {
+      background: linear-gradient(90deg, #2e7d32 0%, #43ea7c 100%);
+      box-shadow: 0 4px 16px rgba(67,234,124,0.15);
+    }
+
+@media (max-width: 900px) {
+  #chat-container {
+    flex-direction: column;
+    max-width: 98vw;
+    padding: 0;
+  }
+  #user-list {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #cfd8dc;
+    padding: 12px 4px;
+  }
+  #chat-box {
+    padding: 12px 4px;
+  }
+      #chat-messages {
+        height: 220px;
+        padding: 8px;
+      }
+      #reply-form {
+        flex-direction: column;
+        gap: 8px;
+      }
+      #replyImage {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <div class="navbar-logo">
+        <img src="/uploads/icon1contoh.png" alt="Logo" />
+        <span>EcoConnect Admin</span>
+      </div>
+      <ul class="navbar-links" id="navbarLinks">
+        <li><a href="/admin">Dashboard</a></li>
+        <li><a href="/chat">Chat User</a></li>
+        <li><a href="/forum">Forumku</a></li>
+        <li><a href="/explore">Proyek</a></li>
+        <li><a href="/map">Peta</a></li>
+        <li><a href="/profile">Profil</a></li>
+        <li><a href="/auth/logout">Logout</a></li>
+      </ul>
+    </nav>
+  </header>
+          <h1 style="text-align: center;">Chat dengan User</h1>
+  <div id="chat-container">
+    <div id="user-list">
+      <input type="text" id="searchUser" placeholder="Cari nama / no. WA...">
+      <div id="userResults"></div>
+    </div>
+    <div id="chat-box">
+      <div id="chat-messages"></div>
+      <form id="reply-form" enctype="multipart/form-data">
+        <input type="text" name="content" id="replyInput" placeholder="Balas pesan..." required />
+        <input type="file" name="image" id="replyImage" />
+        <button type="submit">Kirim</button>
+      </form>
+    </div>
+  </div>
+  <footer class="footer">
+    <p>&copy; 2025 EcoConnect. All rights reserved.</p>
+  </footer>
+  <script>
+    let currentUserId = null;
+    let allUsers = [];
+    const ADMIN_ID = 1; // Sesuaikan dengan ID admin Anda
+
+    function loadUsers() {
+      fetch('/chat/admin/users')
+        .then(res => res.json())
+        .then(users => {
+          allUsers = users;
+          renderUserList(users);
+        });
+    }
+
+    function renderUserList(users) {
+      const container = document.getElementById('userResults');
+      container.innerHTML = '';
+      users.forEach(u => {
+        const div = document.createElement('div');
+        div.className = 'user-entry ' + (u.has_unread ? 'unread' : 'read');
+        div.textContent = `${u.name} (${u.no_wa || 'No WA?'})`;
+        div.onclick = () => {
+          currentUserId = u.id;
+          markAsRead(u.id);
+          loadChat(u.id);
+        };
+        container.appendChild(div);
+      });
+    }
+
+    function loadChat(userId) {
+      fetch(`/chat/admin/${userId}`)
+        .then(res => res.json())
+        .then(data => {
+          const box = document.getElementById('chat-messages');
+          box.innerHTML = '';
+          data.forEach(chat => {
+            const isAdmin = parseInt(chat.sender_id) === ADMIN_ID;
+            const div = document.createElement('div');
+            div.className = 'bubble ' + (isAdmin ? 'right' : 'left');
+            div.innerHTML = `
+              ${chat.content || ''}
+              ${chat.image_url && chat.image_url !== 'null' ? '<br><img src="' + chat.image_url + '" width="100"/>' : ''}
+            `;
+            box.appendChild(div);
+          });
+          box.scrollTop = box.scrollHeight;
+        });
+    }
+
+    function markAsRead(userId) {
+      fetch(`/chat/admin/${userId}/read`, { method: 'POST' });
+    }
+
+    document.getElementById('reply-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (!currentUserId) return alert("Pilih user dulu!");
+      const formData = new FormData(this);
+      fetch(`/chat/admin/${currentUserId}/send`, {
+        method: 'POST',
+        body: formData
+      }).then(() => {
+        this.reset();
+        loadChat(currentUserId);
+      });
+    });
+
+    document.getElementById('searchUser').addEventListener('input', function () {
+      const keyword = this.value.toLowerCase();
+      const filtered = allUsers.filter(u =>
+        u.name.toLowerCase().includes(keyword) || (u.no_wa || '').includes(keyword)
+      );
+      renderUserList(filtered);
+    });
+
+    loadUsers();
+    setInterval(() => {
+      loadUsers();
+      if (currentUserId) loadChat(currentUserId);
+    }, 5000);
+  </script>
+</body>
+</html>

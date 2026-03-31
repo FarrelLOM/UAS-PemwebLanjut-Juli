@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Forum Diskusi - EcoConnect</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+  <style>
+    body {
+      background-color: #e5ddd5;
+      font-family: "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    .forum-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      max-width: 100vw;
+      margin: 0;
+      border-radius: 0;
+      box-shadow: none;
+      background: #fff;
+      padding: 0;
+    }
+
+    h2 {
+      text-align: center;
+      padding: 10px;
+      background: #075e54;
+      color: #fff;
+      margin: 0;
+    }
+
+    #forumContainer {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      background: #dcf8c6;
+      width: 96vw;
+      max-width: 1200px;
+      margin: 0 auto;
+      box-sizing: border-box;
+    }
+
+    .post {
+      background: #fff;
+      border-radius: 8px;
+      padding: 10px 14px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      max-width: 80%;
+      word-break: break-word;
+      position: relative;
+    }
+
+    .post strong {
+      color: #075e54;
+      display: block;
+    }
+
+    .post small {
+      color: #999;
+      font-size: 0.75em;
+    }
+
+    .post img {
+      max-width: 100%;
+      margin-top: 8px;
+      border-radius: 6px;
+    }
+
+    .admin-controls {
+      margin-top: 6px;
+      display: flex;
+      gap: 6px;
+    }
+
+    .admin-controls button {
+      padding: 4px 8px;
+      font-size: 0.8em;
+      cursor: pointer;
+    }
+
+    .input-area {
+      padding: 16px;
+      background: #f0f0f0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100vw;
+      max-width: 100vw;
+      margin-left: 50%;
+      transform: translateX(-50%);
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    .input-area input[type="text"],
+    .input-area input[type="file"],
+    .input-area button {
+      padding: 12px;
+      font-size: 1em;
+      border: 1px solid #aaa;
+      border-radius: 5px;
+      width: 96vw;
+      max-width: 1200px;
+      margin: 0 auto;
+      box-sizing: border-box;
+    }
+
+    .input-area button {
+      background: #128c7e;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+    }
+
+    .input-area button:hover {
+      background: #075e54;
+    }
+
+    @media (max-width: 600px) {
+      #forumContainer,
+      .input-area input[type="text"],
+      .input-area input[type="file"],
+      .input-area button {
+        width: 98vw;
+        max-width: 98vw;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <div class="navbar-logo">
+        <img src="/uploads/icon1contoh.png" alt="Logo" />
+        <span>EcoConnect</span>
+      </div>
+      <ul class="navbar-links" id="navbarLinks">
+        <li><a href="/explore">Daftar Proyek</a></li>
+        <li><a href="/dashboard">Dashboard</a></li>
+        <li><a href="/form-pengajuan">Pengajuan Proyek</a></li>
+        <li><a href="/map">Peta Proyek</a></li>
+        <li><a href="/leaderboard">Peringkat</a></li>
+        <li><a href="/forum">Forum</a></li>
+        <li><a href="/chat">Chat Admin</a></li>
+        <li><a href="/withdraw">Pencairan</a></li>
+        <li><a href="/profile">Profil</a></li>
+        <li><a href="/auth/logout">Logout</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <div class="forum-wrapper">
+    <h2>Forum Diskusi EcoConnect</h2>
+    <div id="forumContainer"></div>
+    <form id="postForm" class="input-area" enctype="multipart/form-data">
+      <input type="text" name="content" placeholder="Tulis pesan..." required />
+      <input type="file" name="image" accept="image/*" />
+      <button type="submit">Kirim</button>
+    </form>
+  </div>
+
+  <footer class="footer">
+    <p>&copy; 2025 EcoConnect. All rights reserved.</p>
+  </footer>
+
+  <script>
+    function loadPosts() {
+      fetch("/forum/posts")
+        .then(res => res.json())
+        .then(data => {
+          const { posts, role } = data;
+          const container = document.getElementById("forumContainer");
+          container.innerHTML = "";
+
+          if (!posts.length) {
+            container.innerHTML = "<p style='text-align:center;'>Belum ada postingan.</p>";
+            return;
+          }
+
+          posts.forEach(p => {
+            const div = document.createElement("div");
+            div.className = "post";
+            div.innerHTML = `
+              <strong>${p.name}</strong>
+              <small>${new Date(p.created_at).toLocaleString()}</small><br/>
+              <div>${p.content}</div>
+              ${p.image ? `<img src="${p.image}" alt="gambar" />` : ""}
+              ${
+                role === "admin"
+                  ? `
+                <div class="admin-controls">
+                  <button onclick="editPost(${p.id}, '${p.content.replace(/'/g, "\\'")}')">Edit</button>
+                  <button onclick="deletePost(${p.id})">Hapus</button>
+                </div>`
+                  : ""
+              }
+            `;
+            container.appendChild(div);
+          });
+
+          container.scrollTop = container.scrollHeight;
+        })
+        .catch(err => {
+          document.getElementById("forumContainer").innerHTML =
+            "<p style='color:red;'>Gagal ambil data forum.</p>";
+          console.error("Forum load error:", err);
+        });
+    }
+
+    function deletePost(id) {
+      if (confirm("Yakin ingin menghapus postingan ini?")) {
+        fetch("/forum/delete", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id })
+        }).then(() => loadPosts());
+      }
+    }
+
+    function editPost(id, currentContent) {
+      const newContent = prompt("Edit isi postingan:", currentContent);
+      if (newContent && newContent !== currentContent) {
+        fetch("/forum/update", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id, content: newContent })
+        }).then(() => loadPosts());
+      }
+    }
+
+    document.getElementById("postForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+
+      fetch("/forum/create", {
+        method: "POST",
+        body: formData
+      }).then(() => {
+        this.reset();
+        loadPosts();
+      });
+    });
+
+    loadPosts();
+    setInterval(loadPosts, 5000);
+  </script>
+</body>
+</html>

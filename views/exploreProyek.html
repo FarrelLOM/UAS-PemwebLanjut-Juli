@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Explore Proyek SDGs</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+  <link rel="icon" href="/uploads/icon1contoh.png" type="image/png" />
+  <style>
+    .proyek-card {
+      border: 1px solid #ddd;
+      margin: 10px;
+      padding: 15px;
+      display: inline-block;
+      width: 300px;
+      vertical-align: top;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(44,62,80,0.07);
+    }
+    img { max-width: 100%; height: auto; border-radius: 6px; }
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    #filterForm {
+      margin-bottom: 24px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    #filterForm input, #filterForm select, #filterForm button {
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid #cfd8dc;
+      font-size: 1em;
+    }
+    #filterForm button {
+      background: #2e8b57;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+    #filterForm button:hover {
+      background: #256d47;
+    }
+    .lihat-detail-btn {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 8px 18px;
+  background: #2e8b57;
+  color: #fff !important;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background 0.2s;
+  box-shadow: 0 2px 8px rgba(44,62,80,0.07);
+}
+.lihat-detail-btn:hover {
+  background: #256d47;
+  color: #fff;
+  text-decoration: none;
+}
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <div class="navbar-logo">
+        <img src="/uploads/icon1contoh.png" alt="Logo" />
+        <span>EcoConnect</span>
+      </div>
+      <ul class="navbar-links" id="navbarLinks">
+        <li><a href="/explore">Daftar Proyek</a></li>
+        <li><a href="/dashboard">Dashboard</a></li>
+        <li><a href="/form-pengajuan">Pengajuan Proyek</a></li>
+        <li><a href="/map">Peta Proyek</a></li>
+        <li><a href="/leaderboard">Peringkat</a></li>
+        <li><a href="/forum">Forum</a></li>
+        <li><a href="/chat">Chat Admin</a></li>
+        <li><a href="/withdraw">Pencairan</a></li>
+        <li><a href="/profile">Profil</a></li>
+        <li><a href="/auth/logout">Logout</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <h2>Proyek SDGs yang Sedang Dibuka</h2>
+
+    <form id="filterForm">
+      <input type="text" id="search" placeholder="Cari proyek...">
+      <select id="sort">
+        <option value="terbaru">Terbaru</option>
+        <option value="terlama">Terlama</option>
+        <option value="deadline">Terdekat Deadline</option>
+      </select>
+      <button type="submit">Terapkan</button>
+    </form>
+
+    <div id="projectContainer"></div>
+  </main>
+
+  <footer class="footer">
+    <p>&copy; 2025 EcoConnect. All rights reserved.</p>
+  </footer>
+
+  <script>
+    async function fetchProjects(query = "", sort = "") {
+      const res = await fetch(`/user/api/explore?search=${query}&sort=${sort}`);
+      const data = await res.json();
+
+      const container = document.getElementById("projectContainer");
+      container.innerHTML = "";
+
+      if (data.length === 0) {
+        container.innerHTML = "<p>Tidak ada proyek ditemukan.</p>";
+        return;
+      }
+
+// ...existing code...
+data.forEach(p => {
+  const card = document.createElement("div");
+  card.className = "proyek-card";
+  card.innerHTML = `
+    <img src="${p.gambar_url}" />
+    <h3>${p.judul}</h3>
+    <p><strong>Kategori:</strong> ${p.kategori}</p>
+    <p><strong>Lokasi:</strong> ${p.lokasi}</p>
+    <p><strong>Deadline:</strong> ${p.deadline}</p>
+    <a href="/user/proyek/${p.id}" class="lihat-detail-btn">Lihat Detail</a>
+  `;
+  container.appendChild(card);
+});
+// ...existing code...
+    }
+
+    document.getElementById("filterForm").addEventListener("submit", e => {
+      e.preventDefault();
+      const search = document.getElementById("search").value;
+      const sort = document.getElementById("sort").value;
+      fetchProjects(search, sort);
+    });
+
+    fetchProjects();
+  </script>
+</body>
+</html>

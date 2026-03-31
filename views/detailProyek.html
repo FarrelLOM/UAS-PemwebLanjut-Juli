@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Detail Proyek</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+  <link rel="icon" href="/uploads/icon1contoh.png" type="image/png" />
+  <style>
+    .detail-container {
+      max-width: 500px;
+      margin: 40px auto;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px rgba(44, 62, 80, 0.07);
+      padding: 32px 28px 24px 28px;
+    }
+    #gambar {
+      display: block;
+      margin: 0 auto 18px auto;
+      border-radius: 8px;
+      max-width: 100%;
+      height: auto;
+    }
+    #donasiForm {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+      flex-wrap: wrap;
+    }
+    #donasiForm input[type="number"] {
+      flex: 1 1 120px;
+      padding: 10px 12px;
+      border: 1px solid #cfd8dc;
+      border-radius: 6px;
+      font-size: 1em;
+      transition: border 0.2s;
+    }
+    #donasiForm input[type="number"]:focus {
+      border: 1.5px solid #2e8b57;
+      outline: none;
+    }
+    #donasiForm button {
+      background: #2e8b57;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 24px;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      box-shadow: 0 2px 8px rgba(44,62,80,0.07);
+      display: inline-block;
+    }
+    #donasiForm button:hover {
+      background: #256d47;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <div class="navbar-logo">
+        <img src="/uploads/icon1contoh.png" alt="Logo" />
+        <span>EcoConnect</span>
+      </div>
+      <ul class="navbar-links" id="navbarLinks">
+        <li><a href="/explore">Daftar Proyek</a></li>
+        <li><a href="/form-pengajuan">Pengajuan Proyek</a></li>
+        <li><a href="/map">Peta Proyek</a></li>
+        <li><a href="/leaderboard">Peringkat</a></li>
+        <li><a href="/forum">Forum</a></li>
+        <li><a href="/chat">Chat Admin</a></li>
+        <li><a href="/withdraw">Pencairan</a></li>
+        <li><a href="/profile">Profil</a></li>
+        <li><a href="/auth/logout">Logout</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <div class="detail-container">
+      <h2 id="judul"></h2>
+      <img id="gambar" width="300"><br>
+      <p><strong>Kategori:</strong> <span id="kategori"></span></p>
+      <p><strong>Lokasi:</strong> <span id="lokasi"></span></p>
+      <p><strong>Deadline:</strong> <span id="deadline"></span></p>
+      <p><strong>Deskripsi:</strong> <span id="deskripsi"></span></p>
+
+      <h3>Donasi Sekarang</h3>
+      <form id="donasiForm">
+        <input type="number" id="amount" placeholder="Jumlah donasi (Rp)" required>
+        <button type="submit">Donasi Sekarang</button>
+      </form>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>&copy; 2025 EcoConnect. All rights reserved.</p>
+  </footer>
+
+  <script>
+    const id = window.location.pathname.split('/').pop();
+
+    // Tampilkan detail proyek
+    fetch(`/user/api/proyek/${id}`)
+      .then(res => res.json())
+      .then(p => {
+        document.getElementById('judul').innerText = p.judul;
+        document.getElementById('gambar').src = p.gambar_url;
+        document.getElementById('kategori').innerText = p.kategori;
+        document.getElementById('lokasi').innerText = p.lokasi;
+        document.getElementById('deadline').innerText = p.deadline;
+        document.getElementById('deskripsi').innerText = p.deskripsi;
+      });
+
+    // Kirim donasi
+    document.getElementById('donasiForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const amount = document.getElementById('amount').value;
+
+      const res = await fetch('/donasi/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount, project_id: id })
+      });
+
+      const data = await res.json();
+      if (data && data.payment_url) {
+        window.location.href = data.payment_url;
+      } else {
+        alert("Gagal memproses donasi: " + (data.error || ''));
+      }
+    });
+  </script>
+</body>
+</html>

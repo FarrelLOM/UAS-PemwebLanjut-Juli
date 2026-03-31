@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Ajukan Proyek</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+  <link rel="icon" href="/uploads/icon1contoh.png" type="image/png" />
+  <style>
+    .pengajuan-container {
+      background: #fff;
+      max-width: 420px;
+      margin: 48px auto 0 auto;
+      padding: 32px 28px 24px 28px;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px rgba(44, 62, 80, 0.07);
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .pengajuan-container h2 {
+      text-align: center;
+      margin-bottom: 24px;
+      color: #2e8b57;
+      font-weight: 600;
+    }
+    .pengajuan-container form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .pengajuan-container input,
+    .pengajuan-container textarea {
+      padding: 10px 12px;
+      border: 1px solid #cfd8dc;
+      border-radius: 6px;
+      font-size: 1em;
+      transition: border 0.2s;
+    }
+    .pengajuan-container input:focus,
+    .pengajuan-container textarea:focus {
+      border: 1.5px solid #2e8b57;
+      outline: none;
+    }
+    .pengajuan-container button {
+      background: #2e8b57;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 0;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .pengajuan-container button:hover {
+      background: #256d47;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="navbar">
+      <div class="navbar-logo">
+        <img src="/uploads/icon1contoh.png" alt="Logo" />
+        <span>EcoConnect</span>
+      </div>
+      <ul class="navbar-links" id="navbarLinks">
+        <li><a href="/explore">Daftar Proyek</a></li>
+        <li><a href="/dashboard">Dashboard</a></li>
+        <li><a href="/form-pengajuan">Pengajuan Proyek</a></li>
+        <li><a href="/map">Peta Proyek</a></li>
+        <li><a href="/leaderboard">Peringkat</a></li>
+        <li><a href="/forum">Forum</a></li>
+        <li><a href="/chat">Chat Admin</a></li>
+        <li><a href="/withdraw">Pencairan</a></li>
+        <li><a href="/profile">Profil</a></li>
+        <li><a href="/auth/logout">Logout</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <div class="pengajuan-container">
+      <h2>Form Pengajuan Proyek SDGs</h2>
+      <form action="/user/submit-project" method="POST" enctype="multipart/form-data">
+        <input name="judul" placeholder="Judul Proyek" required />
+        <textarea name="deskripsi" placeholder="Deskripsi Proyek" required></textarea>
+        <input name="kategori" placeholder="Kategori SDGs" required />
+        <input name="lokasi" placeholder="Lokasi" required />
+        <input name="deadline" type="date" placeholder="deadline proyek" required />
+        <input name="lat" placeholder="Garis lintang" required />
+        <input name="lng" placeholder="Garis bujur" required />
+        <input name="target_amount" type="number" placeholder="Target donasi" required />
+        <input name="whatsapp" placeholder="No. WhatsApp" required />
+        <input type="file" name="gambar" accept="image/*" required />
+        <button type="submit">Kirim Pengajuan</button>
+      </form>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>&copy; 2025 EcoConnect. All rights reserved.</p>
+  </footer>
+</body>
+</html>
